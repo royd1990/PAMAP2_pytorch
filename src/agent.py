@@ -39,7 +39,7 @@ class agent:
         print(count_parameters(self.model))
         # self.model = CNN()
         self.model.to(self.device)
-        
+
         self.optimizer = torch.optim.Adam(self.model.parameters(),
                                          lr=self.lr,weight_decay=self.reg_coef)
         

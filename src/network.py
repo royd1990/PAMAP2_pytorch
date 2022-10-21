@@ -55,6 +55,8 @@ class Model(nn.Module):
             # x = self.l1(x)
             # x = x.permute(0,2,1)#x.view(-1, x.shape[2], x.shape[1])
             x, _ = self.lstm(x)
+            x = self.dropout(x)
+            self.max_norm(self.fc.weight)
             out = self.fc(x)
             x_op = out[:,-1,:]
             x_op = torch.softmax(x_op,dim=1)

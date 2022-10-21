@@ -1,0 +1,1 @@
+docker build -f Dockerfile_train -t pamap2har:train . && docker run --gpus 1 -ti pamap2har:train python3 train.py
