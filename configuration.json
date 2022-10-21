@@ -1,0 +1,87 @@
+{
+    "models" : {
+
+           "lstm_model" : {
+                  "version" : 1,
+                  "network_params":{      
+                  "n_classes": 12,
+                  "n_channels": 52,
+                  "num_layers" : 1,
+                  "num_hidden" : 64,
+                  "max_norm" : 4.0,
+                  "keep_prob" : 0.0,
+                  "hidden_dim_time": 180,
+                  "temporal_activation": "sin"
+
+                  },
+                  "training_params" : {
+                  "batch_size" : 128,
+                  "init_scale" : 0.1,
+                  "learning_rate" :0.001,
+                  "num_epochs" : 10,
+                  "reg_coeff": 0.0
+
+
+                  },
+                  "testing_params" : {
+                         "batch_size" : 11000
+
+                  }
+
+           },
+
+           "cnn_model" : {
+                  "version" : 1,
+                  "network_params":{},
+                  "training_params" : {
+                         "batch_size" : 200,
+                         "init_scale" : 0.1,
+                         "learning_rate" :0.8e-3,
+                         "num_epochs" : 50,
+                         "reg_coeff": 0.0015
+    
+    
+                  },
+                  "testing_params" : {
+                         "batch_size" : 11000
+    
+                  }
+           },
+           "mlp_model" : {
+                  "version" : 1,
+                  "train_model_params" : {
+                  "comment":"there is no mlp model now. If added, remmove this comment and add params"
+                  },
+                  "test_model_params" : {
+                         "batch_size" : 1000
+
+                  }
+           },
+           "rf" : {
+
+           },
+           "lr" : {
+           
+           }
+    }
+    ,
+    "dataset_params" : {
+           "data_path" : "data/",
+           "seq_len": 237,
+           "overlap" : 0.79
+    },
+    "general_params":{
+
+           "model_directory" : "models/",
+           "inference_model" : "model.pt"
+    },
+    "training_params":{
+           "model_directory" : "models/",
+           "inference_model" : "model.pt",
+           "training_sample_size": 20000,
+           "data_folder" : "data/",
+           "data_file" : "PAMAP2.mat"
+    }
+
+
+}
