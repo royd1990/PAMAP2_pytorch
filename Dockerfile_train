@@ -1,0 +1,17 @@
+FROM nvidia/cuda:11.2.0-cudnn8-runtime-ubuntu20.04
+
+RUN apt-get update && apt-get install -y python3 python3-pip sudo
+
+RUN sudo apt-get update
+
+RUN useradd -m royd1990
+
+RUN chown -R royd1990:royd1990 /home/royd1990/
+
+COPY --chown=royd1990 . /home/deba/workspace/PAMAP2_pytorch/
+
+USER royd1990
+
+RUN cd /home/deba/workspace/PAMAP2_pytorch/ && pip3 install -r requirements.txt
+
+WORKDIR /home/deba/workspace/PAMAP2_pytorch
