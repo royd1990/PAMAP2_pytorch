@@ -1,1 +1,1 @@
-docker build -f Dockerfile_train -t pamap2har:train . && docker run --gpus 1 -ti pamap2har:train python3 train.py
+docker build -f Dockerfile_train -t pamap2har:train . && docker run --gpus 1 -t pamap2har:train python3 train.py && docker run -d pamap2har:train sleep infinity

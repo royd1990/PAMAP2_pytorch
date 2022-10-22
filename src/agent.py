@@ -40,7 +40,7 @@ class agent:
         # self.model = CNN()
         self.model.to(self.device)
 
-        self.optimizer = torch.optim.Adam(self.model.parameters(),
+        self.optimizer = torch.optim.RMSprop(self.model.parameters(),
                                          lr=self.lr,weight_decay=self.reg_coef)
         
         self.current_epoch = 0
@@ -67,6 +67,7 @@ class agent:
             file_name = f"teacher_{id}"+"/model.pt"
         path = os.path.join(self.model_dir, file_name)
         # self.logger.log(f"Saving the current state of the model to {path}")
+        print("Saving model in: ",path)
         torch.save(self.model.state_dict(), path)
         
     def load_model(self, path):
@@ -91,7 +92,7 @@ class agent:
             if is_best:
                 print("Best Accuracy so far",valid_acc," in epoch",epoch)
                 self.best_valid_acc = valid_acc
-                self.save_model(self.model_id)
+                self.save_model()
                 
                 
         self.writer.flush()
