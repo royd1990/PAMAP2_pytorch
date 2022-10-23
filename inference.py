@@ -61,16 +61,18 @@ if __name__ == "__main__":
 
     X_test_processed,y_test= tsp_obj.process_standard_ts(data['X_test'],data['y_test'].reshape(-1))
 
+    X = T.tensor(X_test_processed,dtype=T.float32).to(device)
+    y = T.tensor(y_test,dtype=T.int64).to(device)
 
     # Training agent creation and training
     pamap2_inference_agent = agent(train_config_params, network_config_params, verbose=True, model_dir=model_directory)
     
     # Model Loading
     pamap2_inference_agent.load_model(model_path)
-    predictions = pamap2_inference_agent.predict(X_test_processed)
+    predictions = pamap2_inference_agent.predict(X)
 
 
-    acc = calc_accuracy(predictions.data,y_test)
-    f1_macro = f1_score(predictions.data,y_test)
+    acc = calc_accuracy(predictions.data,y)
+    f1_macro = f1_score(predictions.data,y)
 
     print(acc,f1_macro)

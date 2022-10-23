@@ -6,7 +6,7 @@
                   "network_params":{      
                   "n_classes": 12,
                   "n_channels": 52,
-                  "num_layers" : 1,
+                  "num_layers" : 2,
                   "num_hidden" : 64,
                   "max_norm" : 4.0,
                   "keep_prob" : 0.0,
@@ -18,7 +18,7 @@
                   "batch_size" : 64,
                   "init_scale" : 0.1,
                   "learning_rate" :1e-3,
-                  "num_epochs" : 5,
+                  "num_epochs" : 100,
                   "reg_coeff": 0.0
 
 
@@ -67,7 +67,7 @@
     ,
     "dataset_params" : {
            "data_path" : "data/",
-           "seq_len": 237,
+           "seq_len": 200,
            "overlap" : 0.79
     },
     "general_params":{
