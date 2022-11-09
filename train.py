@@ -36,7 +36,7 @@ if __name__ == "__main__":
     configuration = parse_configuration(args.configfile)
 
     lstm_config_params = configuration['models']['lstm_model']
-
+    experiment_name = configuration['experiment_name']
     network_config_params = lstm_config_params['network_params']
     train_config_params = lstm_config_params['training_params']
     test_config_params = lstm_config_params['testing_params']
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     # test_data = {"X":data["X_test"],"y":data["y_test"]}
     # valid_data = {"X":data["X_valid"],"y":data["y_valid"]}
 
-    load_obj = LoadDatasets(data,seq_length,overlap,LoadStrategyA())
+    load_obj = LoadDatasets(data,seq_length,overlap,experiment_name,LoadStrategyA())
     train_data_loader = load_obj.prepare_train_data_loader(train_batch_size)
 
     # load_obj_test = LoadDatasets(test_data,seq_length,overlap,LoadStrategyD())

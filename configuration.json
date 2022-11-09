@@ -29,6 +29,32 @@
                   }
 
            },
+           "lstm_model_pamap2" : {
+              "version" : 1,
+              "network_params":{      
+              "n_classes": 18,
+              "n_channels": 79,
+              "num_layers" : 2,
+              "num_hidden" : 128,
+              "max_norm" : 2.0,
+              "keep_prob" : 0.15         
+
+              },
+              "training_params" : {
+              "batch_size" : 256,
+              "init_scale" : 0.1,
+              "learning_rate" :0.0001,
+              "num_epochs" : 50,
+              "reg_coeff": 0.0
+
+
+              },
+              "testing_params" : {
+                     "batch_size" : 512
+
+              }
+
+          },
 
            "cnn_model" : {
                   "version" : 1,
@@ -80,8 +106,9 @@
            "inference_model" : "model.pt",
            "training_sample_size": 20000,
            "data_folder" : "data/",
-           "data_file" : "PAMAP2.mat"
-    }
+           "data_file" : "Opp79.mat"
+    },
 
+    "experiment": "Opportunity"
 
 }

@@ -10,6 +10,15 @@ from abc import ABC, abstractmethod
 device_id = get_device_id(T.cuda.is_available())
 device = T.device(f"cuda:{device_id}" if device_id >= 0 else "cpu")
 
+def convert_labels(abc_array):
+    abc_array = np.int64(abc_array)
+    label_dict = {}
+    for i in range(1,19):
+        label_dict[i] = i-1
+    # Translate labels from 1-18 to 0-17 
+    out = np.array([label_dict[val] for val in abc_array])
+    return out
+
 def unison_shuffled_copies(a, b):
     assert len(a) == len(b)
     p = np.random.permutation(len(a))
@@ -93,14 +102,25 @@ class Strategy(ABC):
 
 class LoadStrategyA(Strategy):
     
-    def load_data(self,data,seq_length,overlap,batch_size):
+    def load_data(self,data,seq_length,overlap,experiment_name,batch_size):
+        
         tsp_obj = tsp.ts_processor(seq_length, overlap)
-        X_train = data['X_train']
-        X_valid = data['X_valid']
-        X_test = data['X_test']
-        y_train = data['y_train'].reshape(-1)
-        y_valid = data['y_valid'].reshape(-1)
-        y_test = data['y_test'].reshape(-1)
+        if experiment_name=="PAMAP2":
+            X_train = data['X_train']
+            X_valid = data['X_valid']
+            X_test = data['X_test']
+            y_train = data['y_train'].reshape(-1)
+            y_valid = data['y_valid'].reshape(-1)
+            y_test = data['y_test'].reshape(-1)
+        elif experiment_name=="Opportunity":
+            X_train = data["trainingData"]
+            X_valid = data["valData"]
+            X_test = data["testingData"]
+            y_train = convert_labels(data["trainingLabels"].reshape(-1))
+            y_valid = convert_labels(data["valLabels"].reshape(-1))
+            y_test = convert_labels(data["testingLabels"].reshape(-1))
+        else:
+            return
         
         X_train_processed, y_train_processed = tsp_obj.process_standard_ts(X_train, y_train)
         X_valid_processed, y_valid_processed = tsp_obj.process_standard_ts(X_valid, y_valid)
@@ -114,7 +134,7 @@ class LoadStrategyA(Strategy):
 
 class LoadStrategySingle(Strategy):
 
-    def load(self,data,seq_length,overlap,batch_size):
+    def load(self,data,seq_length,overlap,experiment_name,batch_size):
         # self.batch_size = batch_size
         tsp_obj = tsp.ts_processor(seq_length, overlap)
         X = data['X']
@@ -127,7 +147,7 @@ class LoadStrategySingle(Strategy):
 class LoadStrategyD(Strategy):
     
         
-    def load_data(self,data,seq_length,overlap,batch_size):
+    def load_data(self,data,seq_length,overlap,experiment_name,batch_size):
         # self.batch_size = batch_size
         tsp_obj = tsp.ts_processor(seq_length, overlap)
         X = data['X']
@@ -141,7 +161,7 @@ class LoadStrategyD(Strategy):
         return X_processed,None,None,y,None,None
 
 class LoadStrategyBlank(Strategy):
-    def load_data(self,data,seq_length,overlap,batch_size):
+    def load_data(self,data,seq_length,overlap,experiment_name,batch_size):
         # self.batch_size = batch_size
         X = data['X']
         y = data['y']
@@ -150,7 +170,7 @@ class LoadStrategyBlank(Strategy):
         return X,None,None,y,None,None
 
 class LoadStrategyCNN(Strategy):
-    def load_data(self,data,seq_length,overlap,batch_size):
+    def load_data(self,data,seq_length,overlap,experiment_namebatch_size):
         # self.batch_size = batch_size
         X = data['X']
         y = data['y']
@@ -163,7 +183,7 @@ class LoadStrategyCNN(Strategy):
 
 class LoadDatasets:
     
-    def __init__(self,data,seq_length, overlap,load_data_strategy: Strategy) -> None:
+    def __init__(self,data,seq_length, overlap,experiment_name,load_data_strategy: Strategy) -> None:
         
 
         # self.data = scipy.io.loadmat(src)
@@ -172,6 +192,7 @@ class LoadDatasets:
         self.seq_length = seq_length
         self.overlap = overlap
         self._load_data_strategy = load_data_strategy
+        self.experiment_name = experiment_name
         
     @property
     def load_data_strategy(self) -> Strategy:
@@ -191,7 +212,7 @@ class LoadDatasets:
         
         self.batch_size=batch
         print(self.batch_size,self._load_data_strategy)
-        self.X_train_processed,self.X_valid_processed,self.X_test_processed,self.y_train,self.y_valid,self.y_test = self._load_data_strategy.load_data(self.data,self.seq_length,self.overlap,self.batch_size)
+        self.X_train_processed,self.X_valid_processed,self.X_test_processed,self.y_train,self.y_valid,self.y_test = self._load_data_strategy.load_data(self.data,self.seq_length,self.overlap,self.experiment_name,self.batch_size)
         
 
     def prepare_teacher_loaders(self,number_of_teachers,batch_size):
