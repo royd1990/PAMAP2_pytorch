@@ -201,5 +201,6 @@ class agent:
     
     def predict(self,test_data):
         self.model.eval()
-        prediction = self.model(test_data)
+        test_h = self.model.init_hidden(test_data.shape[0])
+        prediction,_ = self.model(test_data,test_h,1)
         return prediction
