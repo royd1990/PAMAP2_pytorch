@@ -40,7 +40,7 @@ class ts_processor:
                 labels = y.values[start_index:start_index+self.seq_length,:]
             else:
                 labels = None
-            y_windows.append(stats.mode(labels)[0][0])
+            y_windows.append(stats.mode(labels)[0][0])#y_windows.append(labels)#
             start_index+=shift
         
         X_output = np.array(windows)
