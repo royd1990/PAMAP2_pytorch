@@ -132,19 +132,23 @@ class LoadStrategyA(Strategy):
         
 
 
-        # under_sampling_dict = {0: 15000, 1: 7171, 2: 5951, 3: 4195, 4: 8516, 5: 8691, 
-        #                         6: 4214, 7: 11966, 8:  6723, 9: 7567, 10: 5870, 
-        #                         11: 4824, 12: 9435, 13: 9195, 14: 5294, 15: 12669, 16: 14000, 17: 11466}
-        # rus = RandomUnderSampler(sampling_strategy="majority",random_state=42)
-        # X_res, y_res = rus.fit_resample(X_train, y_train)
-        # X_train_processed, y_train_processed = tsp_obj.process_standard_ts(X_res, y_res)
+        under_sampling_dict = {0: 10000, 1: 594, 2: 496, 3: 354, 4: 712, 5: 721, 
+                                6: 363, 7: 999, 8:  568, 9: 628, 10: 503, 
+                                11: 407, 12: 783, 13: 769, 14: 446, 15: 1055, 16: 3004, 17: 956}
+        rus = RandomUnderSampler(sampling_strategy=under_sampling_dict,random_state=42)
+
         X_train_processed, y_train_processed = tsp_obj.process_standard_ts(X_train, y_train)
         X_valid_processed, y_valid_processed = tsp_obj.process_standard_ts(X_valid, y_valid)
         X_test_processed, y_test_processed = tsp_obj.process_standard_ts(X_test, y_test)
-        # X_valid_processed = X_valid.reshape(X_valid.shape[0],1,X_valid.shape[1])
+        # X_valid_processed = X_valid.rseshape(X_valid.shape[0],1,X_valid.shape[1])
         # X_test_processed = X_test.reshape(X_test.shape[0],1,X_test.shape[1])
+        X_res_list = []
         
-        y_train = y_train_processed#pd.get_dummies( y_train_processed , prefix='labels' )
+        for i in range(X_train_processed.shape[1]):
+            X_res,y_res = rus.fit_resample(X_train_processed[:,i,:],y_train_processed)
+            X_res_list.append(X_res)
+        X_train_processed = np.stack(X_res_list,axis=1)
+        y_train = y_res#pd.get_dummies( y_train_processed , prefix='labels' )
         y_valid = y_valid_processed#pd.get_dummies( y_valid_processed , prefix='labels' )
         y_test = y_test_processed#pd.get_dummies( y_test_processed , prefix='labels' )
         
