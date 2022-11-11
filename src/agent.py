@@ -23,7 +23,7 @@ device = torch.device(f"cuda:{device_id}" if device_id >= 0 else "cpu")
 def init_weights(m):
     if type(m) == nn.LSTM:
         for name, param in m.named_parameters():
-            param.data = param.data*0.001
+            param.data = param.data
             if 'weight_ih' in name:
                 torch.nn.init.orthogonal_(param.data)
             elif 'weight_hh' in name:
