@@ -3,6 +3,8 @@ from __future__ import annotations
 import numpy as np
 import torch as T
 import utils.ts_processor as tsp
+import utils.test_sampler as tsamp
+from imblearn.under_sampling import RandomUnderSampler 
 from utils.helper import get_device_id
 
 from abc import ABC, abstractmethod
@@ -10,14 +12,10 @@ from abc import ABC, abstractmethod
 device_id = get_device_id(T.cuda.is_available())
 device = T.device(f"cuda:{device_id}" if device_id >= 0 else "cpu")
 
-def convert_labels(abc_array):
-    abc_array = np.int64(abc_array)
-    label_dict = {}
-    for i in range(1,19):
-        label_dict[i] = i-1
-    # Translate labels from 1-18 to 0-17 
-    out = np.array([label_dict[val] for val in abc_array])
-    return out
+
+def normalize_standardize(data,mean,sd):
+    data = (data - mean) / sd
+    return data
 
 def unison_shuffled_copies(a, b):
     assert len(a) == len(b)
@@ -103,28 +101,48 @@ class Strategy(ABC):
 class LoadStrategyA(Strategy):
     
     def load_data(self,data,seq_length,overlap,experiment_name,batch_size):
-        
+
         tsp_obj = tsp.ts_processor(seq_length, overlap)
         if experiment_name=="PAMAP2":
+            
             X_train = data['X_train']
             X_valid = data['X_valid']
             X_test = data['X_test']
             y_train = data['y_train'].reshape(-1)
             y_valid = data['y_valid'].reshape(-1)
             y_test = data['y_test'].reshape(-1)
+
         elif experiment_name=="Opportunity":
-            X_train = data["trainingData"]
-            X_valid = data["valData"]
-            X_test = data["testingData"]
-            y_train = convert_labels(data["trainingLabels"].reshape(-1))
-            y_valid = convert_labels(data["valLabels"].reshape(-1))
-            y_test = convert_labels(data["testingLabels"].reshape(-1))
+
+            X_train = data["trainingData"].T
+            X_valid = data["valData"].T
+            X_test = data["testingData"].T
+            y_train = data["trainingLabels"].reshape(-1)-1
+            y_valid = data["valLabels"].reshape(-1)-1
+            y_test = data["testingLabels"].reshape(-1)-1
+
+            train_sd = np.std(X_train,axis=0)
+            train_mean = np.mean(X_train,axis=0)
+            X_train = normalize_standardize(X_train,train_mean,train_sd)
+            X_test = normalize_standardize(X_test,train_mean,train_sd)
+            X_valid = normalize_standardize(X_valid,train_mean,train_sd)
+
         else:
             return
         
+
+
+        # under_sampling_dict = {0: 15000, 1: 7171, 2: 5951, 3: 4195, 4: 8516, 5: 8691, 
+        #                         6: 4214, 7: 11966, 8:  6723, 9: 7567, 10: 5870, 
+        #                         11: 4824, 12: 9435, 13: 9195, 14: 5294, 15: 12669, 16: 14000, 17: 11466}
+        # rus = RandomUnderSampler(sampling_strategy="majority",random_state=42)
+        # X_res, y_res = rus.fit_resample(X_train, y_train)
+        # X_train_processed, y_train_processed = tsp_obj.process_standard_ts(X_res, y_res)
         X_train_processed, y_train_processed = tsp_obj.process_standard_ts(X_train, y_train)
         X_valid_processed, y_valid_processed = tsp_obj.process_standard_ts(X_valid, y_valid)
         X_test_processed, y_test_processed = tsp_obj.process_standard_ts(X_test, y_test)
+        # X_valid_processed = X_valid.reshape(X_valid.shape[0],1,X_valid.shape[1])
+        # X_test_processed = X_test.reshape(X_test.shape[0],1,X_test.shape[1])
         
         y_train = y_train_processed#pd.get_dummies( y_train_processed , prefix='labels' )
         y_valid = y_valid_processed#pd.get_dummies( y_valid_processed , prefix='labels' )
@@ -235,14 +253,15 @@ class LoadDatasets:
         
         self.load_data_logic(batch_size)
         print("Training Shapes",self.X_train_processed.shape,self.y_train.shape)
+        sampler = tsamp.StratifiedSampler(self.y_train,batch_size=batch_size)
         ds_train_obj = TSDataset(self.X_train_processed,self.y_train)
-        train_data_loader = T.utils.data.DataLoader(ds_train_obj,batch_size=batch_size, shuffle=True)
+        train_data_loader = T.utils.data.DataLoader(ds_train_obj,batch_size=batch_size, sampler=sampler)#, shuffle=True sampler=sampler
         return train_data_loader
     
     def prepare_valid_data_loader(self,batch_size):
         # self.load_data()
         # self.load_data_logic(batch_size)
-        print("Valid Shapes",self.X_valid_processed.shape,self.y_valid.shape)
+        print("Valid Shapes",self.X_valid_processed.shape,self.y_valid.shape,batch_size)
 
         ds_valid_obj = TSDataset(self.X_valid_processed,self.y_valid)    
         valid_data_loader = T.utils.data.DataLoader(ds_valid_obj,batch_size=batch_size, shuffle=True)
@@ -250,7 +269,7 @@ class LoadDatasets:
     
     def prepare_test_data_loader(self,batch_size):
         # self.load_data_logic(batch_size)
-        print("Test Shapes",self.X_test_processed.shape,self.y_test.shape)
+        print("Test Shapes",self.X_test_processed.shape,self.y_test.shape,batch_size)
         ds_test_obj = TSDataset(self.X_test_processed,self.y_test)
         test_data_loader = T.utils.data.DataLoader(ds_test_obj,batch_size=batch_size, shuffle=True)
         return test_data_loader
