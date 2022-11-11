@@ -7,7 +7,7 @@ torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 import numpy as np
 import scipy
-np.random.seed(random_seed)
+# np.random.seed(random_seed)
 from torch.utils.tensorboard import SummaryWriter
 # from syft.core.frameworks.torch.dp import pate
 import argparse
@@ -35,8 +35,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     configuration = parse_configuration(args.configfile)
 
-    lstm_config_params = configuration['models']['lstm_model']
-    experiment_name = configuration['experiment_name']
+    lstm_config_params = configuration['models']['lstm_model_opportunity']
+    experiment_name = configuration['experiment']
     network_config_params = lstm_config_params['network_params']
     train_config_params = lstm_config_params['training_params']
     test_config_params = lstm_config_params['testing_params']
