@@ -14,7 +14,7 @@ class Model(nn.Module):
         self._max_norm_val = network_config_params["max_norm"]
         
         if self.n_layers > 1:
-            self.lstm  = nn.LSTM(self.n_channels, self.n_hidden, self.n_layers, dropout=self.drop_prob)
+            self.lstm  = nn.LSTM(self.n_channels, self.n_hidden, self.n_layers, dropout=self.drop_prob,bidirectional=True)
         else:
             self.lstm  = nn.LSTM(self.n_channels, self.n_hidden, dropout=self.drop_prob, bidirectional=True)
         self.fc = nn.Linear(self.n_hidden*2, self.n_classes)
