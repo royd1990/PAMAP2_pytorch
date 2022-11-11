@@ -101,11 +101,11 @@
     "general_params":{
 
            "model_directory" : "models/",
-           "inference_model" : "model_opp.pt"
+           "inference_model" : "model.pt"
     },
     "training_params":{
            "model_directory" : "models/",
-           "inference_model" : "model_opp.pt",
+           "inference_model" : "model.pt",
            "training_sample_size": 20000,
            "data_folder" : "data/",
            "data_file" : "Opp79.mat"

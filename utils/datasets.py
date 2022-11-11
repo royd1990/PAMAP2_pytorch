@@ -132,7 +132,7 @@ class LoadStrategyA(Strategy):
         
 
 
-        under_sampling_dict = {0: 10000, 1: 594, 2: 496, 3: 354, 4: 712, 5: 721, 
+        under_sampling_dict = {0: 25000, 1: 594, 2: 496, 3: 354, 4: 712, 5: 721, 
                                 6: 363, 7: 999, 8:  568, 9: 628, 10: 503, 
                                 11: 407, 12: 783, 13: 769, 14: 446, 15: 1055, 16: 3004, 17: 956}
         rus = RandomUnderSampler(sampling_strategy=under_sampling_dict,random_state=42)

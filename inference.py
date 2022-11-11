@@ -28,7 +28,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     configuration = parse_configuration(args.configfile)
 
-    lstm_config_params = configuration['models']['lstm_model']
+    experiment_name = configuration['experiment']
+    lstm_config_params = configuration['models']['lstm_model_opportunity']
 
     network_config_params = lstm_config_params['network_params']
     train_config_params = lstm_config_params['training_params']
@@ -59,18 +60,26 @@ if __name__ == "__main__":
 
     tsp_obj = tsp.ts_processor(seq_length, overlap)
 
-    X_test_processed,y_test= tsp_obj.process_standard_ts(data['X_test'],data['y_test'].reshape(-1))
+    X_train = data["trainingData"].T
+    X_test = data["testingData"].T
+    y_test = data["testingLabels"].reshape(-1)-1
+
+    train_sd = np.std(X_train,axis=0)
+    train_mean = np.mean(X_train,axis=0)
+    X_test = normalize_standardize(X_test,train_mean,train_sd)
+
+    X_test_processed,y_test= tsp_obj.process_standard_ts(X_test,y_test)
 
 
     # Training agent creation and training
-    pamap2_inference_agent = agent(train_config_params, network_config_params, verbose=True, model_dir=model_directory)
+    opportunity_inference_agent = agent(train_config_params, network_config_params, verbose=True, model_dir=model_directory)
     
     # Model Loading
-    pamap2_inference_agent.load_model(model_path)
-    predictions = pamap2_inference_agent.predict(X_test_processed)
+    opportunity_inference_agent.load_model(model_path)
+    predictions = opportunity_inference_agent.predict(torch.from_numpy(np.float32(X_test_processed)).cuda())
 
 
-    acc = calc_accuracy(predictions.data,y_test)
-    f1_macro = f1_score(predictions.data,y_test)
+    acc = calc_accuracy(predictions.data,torch.from_numpy(y_test).cuda())
+    f1_macro = f1_score(predictions.data,torch.from_numpy(y_test).cuda())
 
     print(acc,f1_macro)
